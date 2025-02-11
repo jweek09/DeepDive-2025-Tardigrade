@@ -1,0 +1,52 @@
+{
+  "version": 1.0,
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.0,
+        "y": 6.109571996859767
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.8528937348053267,
+        "y": 5.888720303296261
+      },
+      "isLocked": false,
+      "linkedName": "CenterNoteFromAmpSubwoofer"
+    },
+    {
+      "anchor": {
+        "x": 2.4829710755031633,
+        "y": 5.496773447043918
+      },
+      "prevControl": {
+        "x": 2.7185814695290107,
+        "y": 5.848867004653653
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "NearStageShotPosition"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0,
+    "rotateFast": true
+  },
+  "reversed": false,
+  "folder": "Note To Stage Shot",
+  "previewStartingState": {
+    "rotation": -89.37147570568048,
+    "velocity": 0
+  },
+  "useDefaultConstraints": true
+}
