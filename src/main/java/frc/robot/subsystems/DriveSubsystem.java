@@ -1,10 +1,10 @@
 package frc.robot.subsystems;
 
-import com.kauailabs.navx.frc.AHRS;
+import com.studica.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.HolonomicPathFnollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.VecBuilder;
@@ -35,7 +35,7 @@ public class DriveSubsystem extends SubsystemBase {
     private final SwerveModule frontLeft = new SwerveModule(
             SwerveConstants.PortConstants.frontLeftDriveMotorPort,
             SwerveConstants.PortConstants.frontLeftTurningMotorPort,
-            SwerveConstants.PhysicalConstants.frontLeftDriveEncoderReversed,
+            SweveConstants.PhysicalConstants.frontLeftDriveEncoderReversed,
             SwerveConstants.PhysicalConstants.frontLeftTurningEncoderReversed,
             SwerveConstants.PortConstants.frontLeftDriveAbsoluteEncoderPort,
             SwerveConstants.PhysicalConstants.frontLeftDriveAbsoluteEncoderOffsetRad,
