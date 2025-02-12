@@ -10,6 +10,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkClosedLoopController;
 //TODO: do we need ClosedLoopConfig?
 import com.revrobotics.spark.config.ClosedLoopConfig;
+import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -42,6 +43,7 @@ public class SwerveModule implements Sendable {
         final SparkMax turningSparkMax;
 
         SparkMaxConfig config = new SparkMaxConfig();
+        final SparkMaxConfig configResetifier = new SparkMaxConfig();
 
         this.absoluteEncoderOffsetRad = absoluteEncoderOffset;
         this.absoluteEncoderReversed = absoluteEncoderReversed;
@@ -56,7 +58,7 @@ public class SwerveModule implements Sendable {
         // TODO: Reimplement a factory reset on startup
 
         //drivingSparkMax.setInverted(driveMotorReversed);
-        turningSparkMax.setInverted(turningMotorReversed);
+        //turningSparkMax.setInverted(turningMotorReversed);
 
         drivingEncoder = drivingSparkMax.getEncoder();
         turningEncoder = turningSparkMax.getEncoder();
@@ -66,17 +68,17 @@ public class SwerveModule implements Sendable {
 
         //drivingEncoder.setPositionConversionFactor(ModuleConstants.driveEncoderRotToMeter);
         //drivingEncoder.setVelocityConversionFactor(ModuleConstants.driveEncoderRPMToMeterPerSec);
-        turningEncoder.setPositionConversionFactor(ModuleConstants.turningEncoderRotToRad);
-        turningEncoder.setVelocityConversionFactor(ModuleConstants.turningEncoderRPMToRadPerSec);
+        //turningEncoder.setPositionConversionFactor(ModuleConstants.turningEncoderRotToRad);
+        //turningEncoder.setVelocityConversionFactor(ModuleConstants.turningEncoderRPMToRadPerSec);
 
         // Enable PID wrap around for the turning motor. This will allow the PID
         // controller to go through 0 to get to the setpoint i.e. going from 350 degrees
         // to 10 degrees will go through 0 rather than the other direction which is a
         // longer route.
         // This is roughly the same as enabling PIDContinuous on a WPI PIDController
-        turningPIDController.setPositionPIDWrappingEnabled(true);
-        turningPIDController.setPositionPIDWrappingMinInput(0);
-        turningPIDController.setPositionPIDWrappingMaxInput(2 * Math.PI);
+        //turningPIDController.setPositionPIDWrappingEnabled(true);
+        //turningPIDController.setPositionPIDWrappingMinInput(0);
+        //turningPIDController.setPositionPIDWrappingMaxInput(2 * Math.PI);
 
         // Set the PID gains for the driving motor. Note these are example gains, and you
         // may need to tune them for your own robot!
@@ -88,20 +90,19 @@ public class SwerveModule implements Sendable {
 
         // Set the PID gains for the turning motor. Note these are example gains, and you
         // may need to tune them for your own robot!
-        turningPIDController.setP(ModuleConstants.turningP);
-        turningPIDController.setI(ModuleConstants.turningI);
-        turningPIDController.setD(ModuleConstants.turningD);
-        turningPIDController.setFF(ModuleConstants.turningFF);
-        turningPIDController.setOutputRange(ModuleConstants.turningMinOutput , ModuleConstants.turningMaxOutput);
+        //turningPIDController.setP(ModuleConstants.turningP);
+        //turningPIDController.setI(ModuleConstants.turningI);
+        //turningPIDController.setD(ModuleConstants.turningD);
+        //turningPIDController.setFF(ModuleConstants.turningFF);
+        //turningPIDController.setOutputRange(ModuleConstants.turningMinOutput , ModuleConstants.turningMaxOutput);
 
         //drivingSparkMax.setIdleMode(ModuleConstants.drivingMotorIdleMode);
-        turningSparkMax.setIdleMode(ModuleConstants.turningMotorIdleMode);
+        //turningSparkMax.setIdleMode(ModuleConstants.turningMotorIdleMode);
         //drivingSparkMax.setSmartCurrentLimit(ModuleConstants.drivingMotorCurrentLimit);
-        turningSparkMax.setSmartCurrentLimit(ModuleConstants.turningMotorCurrentLimit);
+        //turningSparkMax.setSmartCurrentLimit(ModuleConstants.turningMotorCurrentLimit);
 
-        // Save the SPARK MAX configurations by setting PersistMode to kPersistParameters
-        // Reset undefined parameters to defaults by setting ResetMode to kResetSafeParameters
-        config
+
+        config //configuring drivingSparkMax
                 .inverted(driveMotorReversed) // Invert motors if driveMotorReversed is true
                 .smartCurrentLimit(ModuleConstants.drivingMotorCurrentLimit)
                 .idleMode(ModuleConstants.drivingMotorIdleMode);
@@ -113,8 +114,29 @@ public class SwerveModule implements Sendable {
         config.encoder
                 .positionConversionFactor(ModuleConstants.driveEncoderRotToMeter)
                 .positionConversionFactor(ModuleConstants.driveEncoderRPMToMeterPerSec);
+
+        // Save the SPARK MAX configurations after a power cycle by setting PersistMode to kPersistParameters
+        // Reset undefined parameters to defaults by setting ResetMode to kResetSafeParameters
         drivingSparkMax.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
+        config.apply(configResetifier); // Reset config
+        config
+                .inverted(turningMotorReversed)
+                .smartCurrentLimit(ModuleConstants.turningMotorCurrentLimit)
+                .idleMode(ModuleConstants.turningMotorIdleMode);
+        config.closedLoop
+                .outputRange(ModuleConstants.turningMinOutput , ModuleConstants.turningMaxOutput)
+                .pid(turningP, turningI, turningD)
+                .velocityFF(turningFF)
+                .positionWrappingEnabled(true)
+                .positionWrappingMinInput(0)
+                .positionWrappingMaxInput(2 * Math.PI);
+
+        config.encoder
+                .positionConversionFactor(ModuleConstants.turningEncoderRotToRad)
+                .positionConversionFactor(ModuleConstants.turningEncoderRPMToRadPerSec);
+        turningSparkMax.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+        config.apply(configResetifier);
 
         new Thread(() -> { // Don't block anything else while sleeping
             try {
