@@ -6,7 +6,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.util.GeometryUtil;
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -163,11 +164,11 @@ public final class Constants {
             public static final double turningFF = 0;
             public static final double turningMinOutput = -1;
             public static final double turningMaxOutput = 1;
-
+            //TODO: Make sure this works, 2024 code on 2025 library
             public static final IdleMode drivingMotorIdleMode = IdleMode.kBrake;
             public static final IdleMode turningMotorIdleMode = IdleMode.kBrake;
 
-            public static final int drivingMotorCurrentLimit = 50; // amps
+            public static final int drivingMotorCurrentLimit = 50; // a2mps
             public static final int turningMotorCurrentLimit = 20; // amps
         }
         public static class PortConstants {
