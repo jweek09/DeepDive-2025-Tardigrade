@@ -5,8 +5,7 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.util.GeometryUtil;
-import com.revrobotics.spark.SparkBase;
+import com.pathplanner.lib.util.FlippingUtil;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -119,7 +118,7 @@ public final class Constants {
              * @return The closest {@link ShootingPosition ShootingPosition} to the given {@link Translation2d}
              */
             public static ShootingPosition getNearestPosition(Translation2d to, boolean onRedAllianceSide) {
-                Translation2d adjusted = (onRedAllianceSide) ? GeometryUtil.flipFieldPosition(to) : to;
+                Translation2d adjusted = (onRedAllianceSide) ? FlippingUtil.flipFieldPosition(to) : to;
                 return Arrays.stream(validSpeakerShootingPositions).reduce(validSpeakerShootingPositions[0],
                         (min, element) -> (element.pose.getTranslation().getDistance(adjusted) < // If distance from given
                                 min.pose.getTranslation().getDistance(adjusted)) ? // Is less than that of the previous smallest

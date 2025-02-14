@@ -1,14 +1,13 @@
 package frc.robot.subsystems;
 
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.config.PIDConstants;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -16,84 +15,18 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.I2C.Port;
-import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
+import org.json.simple.parser.ParseException;
 
-import java.util.Arrays;
+import java.io.IOException;
 
 
 public class DriveSubsystem extends SubsystemBase {
-    /**
-     * Creates a new instance of this DriveSubsystem. This constructor
-     * is private since this class is a Singleton. Code should use
-     * the {@link #getInstance()} method to get the singleton instance.
-     */
-    public DriveSubsystem() {
-
-        // TODO: Set the default command, if any, for this subsystem by calling setDefaultCommand(command)
-        //       in the constructor or in the robot coordination class, such as RobotContainer.
-        //       Also, you can call addChild(name, sendableChild) to associate sendables with the subsystem
-        //       such as SpeedControllers, Encoders, DigitalInputs, etc.
-//        SmartDashboard.putData("NavX Gyroscope", gyro);
-//        SmartDashboard.putData("Front Left Swerve Module", frontLeft);
-//        SmartDashboard.putData("Front Right Swerve Module", frontRight);
-//        SmartDashboard.putData("Back Left Swerve Module", backLeft);
-//        SmartDashboard.putData("Back Right Swerve Module", backRight);
-
-        SmartDashboard.putData("Field", field);
-
-        new Thread(() -> { // Don't block anything else while sleeping
-            try {
-                Thread.sleep(1000); // Waits for the gyro to boot up before resetting the heading
-                zeroHeading();
-            } catch (Exception e) {
-                System.err.println(
-                        "Failed to zero gyro heading. Something went wrong while sleeping the thread: \n\t" + e);
-            }
-        }).start();
-
-        RobotConfig config;
-        try{
-            config = RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-            // Handle exception as needed
-            e.printStackTrace();
-            config = new RobotConfig(); // Assign a default configuration in case of failure
-        }
-
-        // Configure AutoBuilder last
-        AutoBuilder.configure(
-                this::getPose, // Robot pose supplier
-                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
-                this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-                new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
-                ),
-                config, // The robot configuration
-                () -> {
-                    // Boolean supplier that controls when the path will be mirrored for the red alliance
-                    // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
-                this // Reference to this subsystem to set requirements
-        );}
 
     private final Field2d field = new Field2d();
 
@@ -168,7 +101,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     /**
      * Gets a PathPlanner path follower.
-     * Events, if registered elsewhere using {@link com.pathplanner.lib.auto.NamedCommands}, will be run.
+     * Events, if registered elsewhere using {@link NamedCommands}, will be run.
      *
      * @param pathName The PathPlanner path name, as configured in the configuration
      * @param setOdomToStart If true, will set the odometry to the start of the path when this command is initialized
@@ -176,10 +109,17 @@ public class DriveSubsystem extends SubsystemBase {
      */
     public Command getPathPlannerFollowCommand(String pathName, boolean setOdomToStart) {
         // Loads the path from the GUI name given
-        PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
+        PathPlannerPath path = null;
+        try {
+            path = PathPlannerPath.fromPathFile(pathName);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
 
         if (setOdomToStart) {
-            resetOdometry(new Pose2d(path.getPoint(0).position, getGyroRotation2d()));
+            resetPose(new Pose2d(path.getPoint(0).position, getGyroRotation2d()));
         }
 
         // Creates a path following command using AutoBuilder. This will execute any named commands when running
@@ -225,7 +165,7 @@ public class DriveSubsystem extends SubsystemBase {
         return poseEstimator.getPoseMeters();
     }
 
-    public void resetOdometry(Pose2d pose) {
+    public void resetPose(Pose2d pose) {
         poseEstimator.resetPosition(getGyroRotation2d(),
                 new SwerveModulePosition[] {
                         frontLeft.getPosition(),
@@ -242,7 +182,7 @@ public class DriveSubsystem extends SubsystemBase {
         frontRight.resetEncoders();
         backLeft.resetEncoders();
         backRight.resetEncoders();
-        resetOdometry(pose);
+        resetPose(pose);
     }
 
     @Override
@@ -277,5 +217,66 @@ public class DriveSubsystem extends SubsystemBase {
         backLeft.setDesiredState(desiredStates[2]);
         backRight.setDesiredState(desiredStates[3]);
     }
+
+    /**
+     * Creates a new instance of this DriveSubsystem. This constructor
+     * is private since this class is a Singleton. Code should use
+     * the {@link #getInstance()} method to get the singleton instance.
+     */
+    public DriveSubsystem() {
+
+        // TODO: Set the default command, if any, for this subsystem by calling setDefaultCommand(command)
+        //       in the constructor or in the robot coordination class, such as RobotContainer.
+        //       Also, you can call addChild(name, sendableChild) to associate sendables with the subsystem
+        //       such as SpeedControllers, Encoders, DigitalInputs, etc.
+//        SmartDashboard.putData("NavX Gyroscope", gyro);
+//        SmartDashboard.putData("Front Left Swerve Module", frontLeft);
+//        SmartDashboard.putData("Front Right Swerve Module", frontRight);
+//        SmartDashboard.putData("Back Left Swerve Module", backLeft);
+//        SmartDashboard.putData("Back Right Swerve Module", backRight);
+
+        SmartDashboard.putData("Field", field);
+
+        new Thread(() -> { // Don't block anything else while sleeping
+            try {
+                Thread.sleep(1000); // Waits for the gyro to boot up before resetting the heading
+                zeroHeading();
+            } catch (Exception e) {
+                System.err.println(
+                        "Failed to zero gyro heading. Something went wrong while sleeping the thread: \n\t" + e);
+            }
+        }).start();
+
+        RobotConfig config = null;
+        try{
+            config = RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            throw new RuntimeException("Robot not configured in PathPlanner - Unable to load config in DriveSubsystem");
+        }
+
+        // Configure AutoBuilder last
+        AutoBuilder.configure(
+                this::getPose, // Robot pose supplier
+                this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                ),
+                config, // The robot configuration
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+        );}
 }
 

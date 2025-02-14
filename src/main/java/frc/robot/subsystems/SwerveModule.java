@@ -8,13 +8,11 @@ import com.revrobotics.spark.SparkMax;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkClosedLoopController;
-//TODO: do we need ClosedLoopConfig?
-import com.revrobotics.spark.config.ClosedLoopConfig;
-import com.revrobotics.spark.config.EncoderConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import frc.robot.Constants.SwerveConstants.ModuleConstants;
@@ -187,10 +185,10 @@ public class SwerveModule implements Sendable {
 
     /** Gets the raw, unadjusted absolute encoder rotation from the CANcoder cache */
     public double getRawAbsoluteEncoderRad() {
-        StatusSignal<Double> rotations = absoluteEncoder.getAbsolutePosition();
+        StatusSignal<Angle> rotations = (absoluteEncoder.getAbsolutePosition());
 
-        return rotations.getValue() // The value returned by the sensor is in rotations
-                * (2 * Math.PI); // And we will invert, depending on the reversed state
+        return (rotations.getValueAsDouble() / 360) // The value returned by the sensor is in rotations
+                * (2 * Math.PI); // Convert to radians
     }
 
     /** Gets the absolute encoder rotation from the CANcoder
@@ -198,7 +196,7 @@ public class SwerveModule implements Sendable {
      * {@link SwerveModule#maximumCANcoderReadRetries maximumCANcoderReadRetries} times
      * to get a successful read from the sensor. Otherwise, it will just try to read immediately from the cached value*/
     public double getAbsoluteEncoderRad(boolean shouldRetry) {
-        StatusSignal<Double> rotations = absoluteEncoder.getAbsolutePosition();
+        StatusSignal<Angle> rotations = absoluteEncoder.getAbsolutePosition();
 
         if (shouldRetry) {
             // Taken from democat's library.
@@ -212,10 +210,11 @@ public class SwerveModule implements Sendable {
             }
         }
 
-        return rotations.getValue() // The value returned by the sensor is in rotations
+        double v = (rotations.getValueAsDouble() / 360) // The value returned by the sensor is in rotations
                 * (2 * Math.PI) // We want radians
-                - absoluteEncoderOffsetRad
-                * (absoluteEncoderReversed ? -1 : 1); // And we will invert, depending on the reversed state
+                - (absoluteEncoderOffsetRad
+                * (absoluteEncoderReversed ? -1 : 1));
+        return v; // And we will invert, depending on the reversed state
     }
 
     /** Resets drive encoder to 0, and turning encoder to the reading of the absolute encoder */
