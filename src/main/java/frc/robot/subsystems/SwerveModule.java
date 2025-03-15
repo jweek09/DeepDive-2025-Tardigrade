@@ -111,7 +111,7 @@ public class SwerveModule implements Sendable {
                 .outputRange(ModuleConstants.drivingMinOutput , ModuleConstants.drivingMaxOutput);
         config.encoder
                 .positionConversionFactor(ModuleConstants.driveEncoderRotToMeter)
-                .positionConversionFactor(ModuleConstants.driveEncoderRPMToMeterPerSec);
+                .velocityConversionFactor(ModuleConstants.driveEncoderRPMToMeterPerSec);
 
         // Save the SPARK MAX configurations after a power cycle by setting PersistMode to kPersistParameters
         // Reset undefined parameters to defaults by setting ResetMode to kResetSafeParameters
@@ -132,7 +132,7 @@ public class SwerveModule implements Sendable {
 
         config.encoder
                 .positionConversionFactor(ModuleConstants.turningEncoderRotToRad)
-                .positionConversionFactor(ModuleConstants.turningEncoderRPMToRadPerSec);
+                .velocityConversionFactor(ModuleConstants.turningEncoderRPMToRadPerSec);
         turningSparkMax.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
         config.apply(configResetifier);
 
@@ -252,5 +252,6 @@ public class SwerveModule implements Sendable {
         drivingPIDController.setReference(0, SparkBase.ControlType.kVelocity);
         turningPIDController.setReference(getState().angle.getRadians(), SparkBase.ControlType.kPosition);
     }
+
 }
 

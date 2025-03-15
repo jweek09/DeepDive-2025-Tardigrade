@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -46,26 +47,23 @@ public class RobotContainer {
     private final CommandXboxController operatorController =
             new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
-    private final SendableChooser<Command> autonomousCommand;
+    //private final SendableChooser<Command> autonomousCommand;
     private GenericEntry autonomousDelayTime;
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
 
+        
+
         registerAutonomousCommands();
 
-        autonomousCommand = AutoBuilder.buildAutoChooser("Do Nothing In Front Of Speaker");
+        //autonomousCommand = AutoBuilder.buildAutoChooser();
 
         configureDashboard();
 
         // Configure the trigger bindings
         configureBindings();
 
-
-//        SmartDashboard.putData(driveSubsystem);
-//        SmartDashboard.putData(armSubsystem);
-//        SmartDashboard.putData(intakeSubsystem);
-//        SmartDashboard.putData(launcherSubsystem);
     }
 
     private void registerAutonomousCommands() {
@@ -75,44 +73,12 @@ public class RobotContainer {
      * Configures the Shuffleboard
      */
     private void configureDashboard() {
-        /* 
-        var shootTuningTab = Shuffleboard.getTab("Shooting Position Tuning");
 
-        GenericEntry shootTuningIsRedAlliance = shootTuningTab.add("On Red Alliance Side",
-                isRedAlliance)
-                .withWidget(BuiltInWidgets.kBooleanBox)
-                .withSize(3, 1)
-                .withPosition(0,0)
-                .getEntry();
-
-        GenericEntry shooterSpeed = shootTuningTab.add("Launcher Speed", 0.5)
-                .withWidget(BuiltInWidgets.kNumberSlider)
-                .withSize(3, 1)
-                .withPosition(0,1)
-                .getEntry();
-
-        defaultLauncherSpeed = () -> shooterSpeed.get().getDouble();
-
-        shootTuningTab.add("Intake Note", Commands.runOnce(() -> temporaryArmRotation = armSubsystem.getEncoderPosition())
-                .andThen(new IntakeNoteCommand())
-                .andThen(armSubsystem.GoToAngleCommand(temporaryArmRotation)))
-                .withWidget(BuiltInWidgets.kCommand)
-                .withSize(3, 1)
-                .withPosition(0,2);
-
-        shootTuningTab.addString("Shooting Position Config", () ->
-                "Pose: " + ((shootTuningIsRedAlliance.getBoolean(false)) ?
-                        GeometryUtil.flipFieldPose(driveSubsystem.getPose()).toString() :
-                        driveSubsystem.getPose().toString()) + "\n---\n" +
-                String.format("Arm Angle: %.4f", armSubsystem.getEncoderPosition()) + "\n---\n" +
-                String.format("Shooter Speed: %.2f", defaultLauncherSpeed.getAsDouble())
-        ).withPosition(3, 0).withSize(3, 3);
- */
         var autonomousTab = Shuffleboard.getTab("Autonomous");
 
-        autonomousTab.add("Autonomous Command", autonomousCommand)
-                .withPosition(0,0)
-                .withSize(3, 1);
+        //autonomousTab.add("Autonomous Command", autonomousCommand)
+        //        .withPosition(0,0)
+        //        .withSize(3, 1);
         autonomousDelayTime = autonomousTab.add("Autonomous Delay Time", 0.0)
                 .withPosition(0, 1)
                 .withSize(3, 1)
@@ -130,6 +96,13 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
+        driveSubsystem.setDefaultCommand(
+                driveSubsystem.driveRobotRelative(
+                        driverController::getLeftY, 
+                        driverController::getLeftX, 
+                        driverController::getRightX
+                )
+        );
     };
 
     
@@ -140,7 +113,9 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return Commands.waitSeconds(MathUtil.clamp(autonomousDelayTime.getDouble(0.0), 0, 15))
-                .andThen(autonomousCommand.getSelected());
+        //return Commands.waitSeconds(MathUtil.clamp(autonomousDelayTime.getDouble(0.0), 0, 15))
+                //.andThen(autonomousCommand.getSelected());
+
+        return new PrintCommand("NOT IMPLEMENTED");
     }
 }

@@ -4,6 +4,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathConstraints;
@@ -20,10 +21,12 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
+import java.util.function.DoubleSupplier;
 
 
 public class DriveSubsystem extends SubsystemBase {
@@ -66,7 +69,9 @@ public class DriveSubsystem extends SubsystemBase {
             SwerveConstants.PhysicalConstants.backRightDriveAbsoluteEncoderOffsetRad,
             SwerveConstants.PhysicalConstants.backRightDriveAbsoluteEncoderReversed);
 
-    private final AHRS gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
+    //private final AHRS gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
+
+    private final Pigeon2 otherGyro = new Pigeon2(13);
 
     private final SwerveDriveOdometry poseEstimator = new SwerveDriveOdometry(
             SwerveConstants.swerveDriveKinematics,
@@ -107,7 +112,7 @@ public class DriveSubsystem extends SubsystemBase {
      * @param setOdomToStart If true, will set the odometry to the start of the path when this command is initialized
      * @return {@link AutoBuilder#followPath(PathPlannerPath)} path command
      */
-    public Command getPathPlannerFollowCommand(String pathName, boolean setOdomToStart) {
+   /*  public Command getPathPlannerFollowCommand(String pathName, boolean setOdomToStart) {
         // Loads the path from the GUI name given
         PathPlannerPath path = null;
         try {
@@ -132,7 +137,7 @@ public class DriveSubsystem extends SubsystemBase {
                 SwerveConstants.AutoConstants.maxAccelerationMetersPerSecondSquared,
                 SwerveConstants.AutoConstants.maxAngularSpeedRadiansPerSecond,
                 SwerveConstants.AutoConstants.maxAngularAccelerationRadiansPerSecondSquared));
-    }
+    } */
 
     public ChassisSpeeds getRobotRelativeSpeeds() {
         return SwerveConstants.swerveDriveKinematics.toChassisSpeeds(
@@ -143,14 +148,22 @@ public class DriveSubsystem extends SubsystemBase {
         );
     }
 
-    public void zeroHeading() {
+    /*public void zeroHeading() {
         gyro.reset();
+    }*/
+
+    public void zeroHeading() {
+        otherGyro.reset();
     }
 
     /** Gets the rotation reported by the heading in degrees
      * @return The reported angle, in degrees */
-    private double getHeading() {
+    /*private double getHeading() {
         return -Math.IEEEremainder(gyro.getAngle(), 360);
+    }*/
+
+    private double getHeading() {
+        return -Math.IEEEremainder(otherGyro.getYaw().getValueAsDouble(), 360);
     }
 
     private Rotation2d getGyroRotation2d() {
@@ -202,6 +215,18 @@ public class DriveSubsystem extends SubsystemBase {
         setModuleStates(SwerveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds));
     }
 
+    public Command driveRobotRelative(DoubleSupplier xSpeedCommanded, DoubleSupplier ySpeedCommanded, DoubleSupplier zRotCommanded) {
+        return run(() -> {
+            double xMPS = xSpeedCommanded.getAsDouble() * Constants.SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
+            double yMPS = ySpeedCommanded.getAsDouble() * Constants.SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
+            double zRPS = zRotCommanded.getAsDouble() * Constants.SwerveConstants.TeleopConstants.teleDriveMaxAngularSpeedRadiansPerSecond;
+
+            driveRobotRelative(
+                ChassisSpeeds.fromRobotRelativeSpeeds(xMPS, yMPS, zRPS, getGyroRotation2d())
+            );
+        });
+    }
+
     /** Stops all modules, setting their velocity to 0 and instructing them to hold their current rotation */
     public void stopModules() {
         frontLeft.stop();
@@ -247,7 +272,7 @@ public class DriveSubsystem extends SubsystemBase {
             }
         }).start();
 
-        RobotConfig config = null;
+        /*RobotConfig config = null;
         try{
             config = RobotConfig.fromGUISettings();
         } catch (Exception e) {
@@ -277,6 +302,7 @@ public class DriveSubsystem extends SubsystemBase {
                     return false;
                 },
                 this // Reference to this subsystem to set requirements
-        );}
+        );}*/
+    }
 }
 
