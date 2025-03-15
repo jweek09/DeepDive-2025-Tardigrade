@@ -108,8 +108,8 @@ public class DriveSubsystem extends SubsystemBase {
      * Gets a PathPlanner path follower.
      * Events, if registered elsewhere using {@link NamedCommands}, will be run.
      *
-     * @param pathName The PathPlanner path name, as configured in the configuration
-     * @param setOdomToStart If true, will set the odometry to the start of the path when this command is initialized
+     * @param //pathName The PathPlanner path name, as configured in the configuration
+     * @param //setOdomToStart If true, will set the odometry to the start of the path when this command is initialized
      * @return {@link AutoBuilder#followPath(PathPlannerPath)} path command
      */
    /*  public Command getPathPlannerFollowCommand(String pathName, boolean setOdomToStart) {
@@ -302,7 +302,7 @@ public class DriveSubsystem extends SubsystemBase {
                     return false;
                 },
                 this // Reference to this subsystem to set requirements
-        );}*/
+        );} */
     }
 }
 

@@ -5,16 +5,11 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.util.FlippingUtil;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
-
-import java.util.Arrays;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -36,95 +31,6 @@ public final class Constants {
         public static final double rightYDeadband = 0.1;
         public static final double armManualDeadband = 0.05;
         public static final double armManualScale = 0.1;
-    }
-
-    public static class PositionConstants {
-        public static class ShootingPositions {
-            public static class ShootingPosition {
-                public static final boolean useSmartFeed = true;
-                public static final double dumbFeedShotTime = 1;
-
-                Pose2d pose;
-                double armAngle;
-                double launcherSpeed;
-                public ShootingPosition(Pose2d pose, double armAngle, double launcherSpeed) {
-                    this.pose = pose;
-                    this.armAngle = armAngle;
-                    this.launcherSpeed = launcherSpeed;
-                }
-
-                public Pose2d getPose() {
-                    return pose;
-                }
-
-                public double getArmAngle() {
-                    return armAngle;
-                }
-
-                public double getLauncherSpeed() {
-                    return launcherSpeed;
-                }
-            }
-
-            /*
-            Below you can declare preset shooting positions.
-            Each position includes a Pose2d to represent the position and rotation of the robot to make the shot,
-            an arm angle, in radians, to angle the arm to,
-            and a speed to run the launcher at.
-
-            All positions should be on the blue alliance side, with x and y values ranging from 0 to ≈8.2 meters
-            and rotations usually around 0°±45°
-
-            Any speaker scoring positions that are valid for use during teleop should be added
-            to the validSpeakerShootingPositions array
-             */
-
-            public static final ShootingPosition ampScore =
-                    new ShootingPosition(new Pose2d(Units.feetToMeters(4.125) // 4' 1.5" to edge from wall
-                                                    + Units.feetToMeters(1), // 2 feet wide, so halfway
-                            Units.feetToMeters(26.9375) // Width of field
-                            - SwerveConstants.PhysicalConstants.driveBaseRadius, // Half the width of the robot
-                            Rotation2d.fromDegrees(-90)),
-                            1.38, 0.4);
-            public static final ShootingPosition inFrontOfSpeaker =
-                    new ShootingPosition(new Pose2d(0,0, Rotation2d.fromDegrees(0)), 0.3, 0.5);
- 
-              public static final ShootingPosition stageShot =
-                    new ShootingPosition(new Pose2d(0,0, Rotation2d.fromDegrees(0)), 0.5, 0.5);
-
-            public static final ShootingPosition farStageShot =
-                    new ShootingPosition(new Pose2d(0,0, Rotation2d.fromDegrees(0)), 0.57, 0.5);
-
-            public static final ShootingPosition theSource  =
-                    new ShootingPosition(new Pose2d(0,0, Rotation2d.fromDegrees(0)), 1.0548 , 0.5);
-
-
-            /** An array of all valid {@link ShootingPosition}s to score on the speaker */
-            public static final ShootingPosition[] validSpeakerShootingPositions
-                    = new ShootingPosition[] { // All valid positions for scoring in the Speaker should be added here
-                    inFrontOfSpeaker,
-                    stageShot,
-	       	        farStageShot,
-                    theSource,
-		            ampScore
-		};
-
-            /**
-             * Finds the nearest {@link ShootingPosition ShootingPosition} from the array of
-             * {@link ShootingPositions#validSpeakerShootingPositions}
-             * @param to The translation on the field to find the closest position to
-             * @param onRedAllianceSide Whether to mirror the translation
-             * @throws IndexOutOfBoundsException If {@link ShootingPositions#validSpeakerShootingPositions} is empty
-             * @return The closest {@link ShootingPosition ShootingPosition} to the given {@link Translation2d}
-             */
-            public static ShootingPosition getNearestPosition(Translation2d to, boolean onRedAllianceSide) {
-                Translation2d adjusted = (onRedAllianceSide) ? FlippingUtil.flipFieldPosition(to) : to;
-                return Arrays.stream(validSpeakerShootingPositions).reduce(validSpeakerShootingPositions[0],
-                        (min, element) -> (element.pose.getTranslation().getDistance(adjusted) < // If distance from given
-                                min.pose.getTranslation().getDistance(adjusted)) ? // Is less than that of the previous smallest
-                                element : min); // Return that new pose, otherwise pass along the smallest
-            }
-        }
     }
 
     public static class SwerveConstants {
@@ -248,7 +154,13 @@ public final class Constants {
             public static final double rotationD = 0.0;
         }
     }
-
-
+    public static class IntakeConstants {
+        public static final int intakeMotorPort = 14;
+        public static final int rotationMotorPort = 15;
+    }
+    public static class ElevatorConstants {
+        public static final int LeftMotorPort = 16;
+        public static final int RightMotorPort = 17;
+    }
     public static final double neoFreeSpeedRPM = 5676;
 }
