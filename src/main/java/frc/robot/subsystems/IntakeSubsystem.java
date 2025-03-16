@@ -7,6 +7,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -22,8 +23,31 @@ public class IntakeSubsystem extends SubsystemBase {
         kIntakeSparkMax.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
         kRotationNEOEncoder.setPosition(0.0);
     }
-    @Override
-    public void periodic() {
-        System.out.println(kRotationNEOEncoder.getPosition());
+    public Command flipDownIntakeToMax(double speed) {
+        return run( () -> {
+            while(kRotationNEOEncoder.getPosition() > Constants.IntakeConstants.IntakeStopPositionRotations) {
+                kRotateSparkMax.set(speed * -1);
+            }
+        });
+    }
+    public Command flipUpIntakeToMax(double speed) {
+        return run( () -> {
+            while(kRotationNEOEncoder.getPosition() < 0) {
+                kRotateSparkMax.set(speed);
+            }
+        });
+    }
+    public Command stickDriveIntake(double speed, boolean inverted) {
+        return run( () -> {
+            double adjustedSpeed = speed * -1;
+            if(inverted){
+                adjustedSpeed = speed * -1;
+            } else if(!inverted){
+                adjustedSpeed = speed;
+            } else {
+                adjustedSpeed = speed;
+            }
+            kRotateSparkMax.set(adjustedSpeed);
+        });
     }
 }

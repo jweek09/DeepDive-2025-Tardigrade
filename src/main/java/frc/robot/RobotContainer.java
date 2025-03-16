@@ -102,6 +102,12 @@ public class RobotContainer {
                         driverController::getRightX
                 )
         );
+        operatorController.x().onTrue(
+                kIntakeSubsystem.flipDownIntakeToMax(Constants.IntakeConstants.IntakeRotateSafeSpeed)
+        );
+        operatorController.y().onTrue(
+                kIntakeSubsystem.flipUpIntakeToMax(Constants.IntakeConstants.IntakeRotateSafeSpeed)
+        );
 
     };
 

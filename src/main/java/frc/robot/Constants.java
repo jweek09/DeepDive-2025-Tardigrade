@@ -157,10 +157,15 @@ public final class Constants {
     public static class IntakeConstants {
         public static final int intakeMotorPort = 14;
         public static final int rotationMotorPort = 15;
+        public static final double IntakeStopPositionRotations = -37.356781005859375;
+        public static final double Intake15DegreeRotation = -10.714339256286627;
+        public static final double IntakeRotateSafeSpeed = .25;
     }
     public static class ElevatorConstants {
         public static final int LeftMotorPort = 16;
         public static final int RightMotorPort = 17;
+
+
     }
     public static final double neoFreeSpeedRPM = 5676;
 }
