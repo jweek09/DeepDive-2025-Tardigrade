@@ -14,7 +14,9 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.IntakeChoraleWithSpeed;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.ElevatorSubsytem;
 import frc.robot.subsystems.IntakeSubsystem;
 
 import java.util.function.BooleanSupplier;
@@ -45,6 +47,7 @@ public class RobotContainer {
             new CommandXboxController(OperatorConstants.OPERATOR_CONTROLLER_PORT);
 
     private final IntakeSubsystem kIntakeSubsystem = new IntakeSubsystem();
+    private final ElevatorSubsytem kElevatorSubsystem = new ElevatorSubsytem();
 
     //private final SendableChooser<Command> autonomousCommand;
     private GenericEntry autonomousDelayTime;
@@ -102,13 +105,34 @@ public class RobotContainer {
                         driverController::getRightX
                 )
         );
+        kIntakeSubsystem.setDefaultCommand(
+                kIntakeSubsystem.stickDriveIntake(
+                        operatorController.getRightY() * Constants.IntakeConstants.IntakeRotateSafeSpeed,
+                        Constants.IntakeConstants.IntakeRotationReversed
+                )
+        );
+
         operatorController.x().onTrue(
                 kIntakeSubsystem.flipDownIntakeToMax(Constants.IntakeConstants.IntakeRotateSafeSpeed)
         );
         operatorController.y().onTrue(
                 kIntakeSubsystem.flipUpIntakeToMax(Constants.IntakeConstants.IntakeRotateSafeSpeed)
         );
+        kElevatorSubsystem.setDefaultCommand(
+                kElevatorSubsystem.MoveElevatorWithStick(
+                        operatorController.getLeftY(), false)
+        );
 
+        //INTAKE CHORALE
+        operatorController.rightTrigger().whileTrue(
+                new IntakeChoraleWithSpeed(Constants.IntakeConstants.IntakeChoraleSpeed, true,
+                        kIntakeSubsystem.getIntakeSparkMax())
+        );
+        operatorController.leftTrigger().whileTrue(
+                new IntakeChoraleWithSpeed(Constants.IntakeConstants.IntakeChoraleSpeed, false,
+                        kIntakeSubsystem.getIntakeSparkMax())
+        );
+        //
     };
 
     

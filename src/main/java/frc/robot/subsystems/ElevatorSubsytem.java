@@ -6,6 +6,7 @@ import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -26,17 +27,19 @@ public class ElevatorSubsytem extends SubsystemBase {
                 .inverted(false);
         kRightSparkMax.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
     }
-    public  Command MoveElevatorWithStick(double speed) {
-        return run( () -> {
-            if (speed > 0.07) {
-                kLeftSparkMax.set(speed);
-                kRightSparkMax.set(speed);
-            }
-            else {
-                kLeftSparkMax.set(0);
-                kRightSparkMax.set(0);
-            }
-        });
 
+    /**
+     *
+     * @param speed Determines the speed to run the elevator at
+     * @param inverted Determines whether the input should be inverted, does not determine direction like in the intake
+     * @return Runs the command that drives the elevator
+     */
+    public  Command MoveElevatorWithStick(double speed, boolean inverted) {
+        return run( () -> {
+            double adjustedSpeed = speed * (inverted ? -1 : 1);
+            adjustedSpeed = MathUtil.applyDeadband(adjustedSpeed, 0.05);
+            kLeftSparkMax.set(adjustedSpeed);
+            kRightSparkMax.set(adjustedSpeed);
+        });
     }
 }

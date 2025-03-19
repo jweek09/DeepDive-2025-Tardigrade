@@ -69,8 +69,6 @@ public class DriveSubsystem extends SubsystemBase {
             SwerveConstants.PhysicalConstants.backRightDriveAbsoluteEncoderOffsetRad,
             SwerveConstants.PhysicalConstants.backRightDriveAbsoluteEncoderReversed);
 
-    //private final AHRS gyro = new AHRS(AHRS.NavXComType.kMXP_SPI);
-
     private final Pigeon2 otherGyro = new Pigeon2(13);
 
     private final SwerveDriveOdometry poseEstimator = new SwerveDriveOdometry(
@@ -103,41 +101,6 @@ public class DriveSubsystem extends SubsystemBase {
     public static DriveSubsystem getInstance() {
         return INSTANCE;
     }
-
-    /**
-     * Gets a PathPlanner path follower.
-     * Events, if registered elsewhere using {@link NamedCommands}, will be run.
-     *
-     * @param //pathName The PathPlanner path name, as configured in the configuration
-     * @param //setOdomToStart If true, will set the odometry to the start of the path when this command is initialized
-     * @return {@link AutoBuilder#followPath(PathPlannerPath)} path command
-     */
-   /*  public Command getPathPlannerFollowCommand(String pathName, boolean setOdomToStart) {
-        // Loads the path from the GUI name given
-        PathPlannerPath path = null;
-        try {
-            path = PathPlannerPath.fromPathFile(pathName);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-
-        if (setOdomToStart) {
-            resetPose(new Pose2d(path.getPoint(0).position, getGyroRotation2d()));
-        }
-
-        // Creates a path following command using AutoBuilder. This will execute any named commands when running
-        return AutoBuilder.followPath(path);
-    }
-
-    public Command pathfindToPosition(Pose2d position) {
-        return AutoBuilder.pathfindToPose(position, new PathConstraints(
-                SwerveConstants.AutoConstants.maxSpeedMetersPerSecond,
-                SwerveConstants.AutoConstants.maxAccelerationMetersPerSecondSquared,
-                SwerveConstants.AutoConstants.maxAngularSpeedRadiansPerSecond,
-                SwerveConstants.AutoConstants.maxAngularAccelerationRadiansPerSecondSquared));
-    } */
 
     public ChassisSpeeds getRobotRelativeSpeeds() {
         return SwerveConstants.swerveDriveKinematics.toChassisSpeeds(
@@ -217,9 +180,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     public Command driveRobotRelative(DoubleSupplier xSpeedCommanded, DoubleSupplier ySpeedCommanded, DoubleSupplier zRotCommanded) {
         return run(() -> {
-            double xMPS = xSpeedCommanded.getAsDouble() * Constants.SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
-            double yMPS = ySpeedCommanded.getAsDouble() * Constants.SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
-            double zRPS = zRotCommanded.getAsDouble() * Constants.SwerveConstants.TeleopConstants.teleDriveMaxAngularSpeedRadiansPerSecond;
+            double xMPS = xSpeedCommanded.getAsDouble() * SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
+            double yMPS = ySpeedCommanded.getAsDouble() * SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
+            double zRPS = zRotCommanded.getAsDouble() * SwerveConstants.TeleopConstants.teleDriveMaxAngularSpeedRadiansPerSecond;
 
             driveRobotRelative(
                 ChassisSpeeds.fromRobotRelativeSpeeds(xMPS, yMPS, zRPS, getGyroRotation2d())
@@ -272,11 +235,12 @@ public class DriveSubsystem extends SubsystemBase {
             }
         }).start();
 
-        /*RobotConfig config = null;
+        RobotConfig config = null;
         try{
             config = RobotConfig.fromGUISettings();
         } catch (Exception e) {
-            throw new RuntimeException("Robot not configured in PathPlanner - Unable to load config in DriveSubsystem");
+            // Handle exception as needed
+            e.printStackTrace();
         }
 
         // Configure AutoBuilder last
@@ -302,7 +266,7 @@ public class DriveSubsystem extends SubsystemBase {
                     return false;
                 },
                 this // Reference to this subsystem to set requirements
-        );} */
+        );
     }
 }
 

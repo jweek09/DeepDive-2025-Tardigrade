@@ -23,14 +23,8 @@ public final class Constants {
     public static class OperatorConstants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final int OPERATOR_CONTROLLER_PORT = 1;
-        
 
-        public static final double leftXDeadband = 0.1;
-        public static final double leftYDeadband = 0.1;
-        public static final double rightXDeadband = 0.1;
-        public static final double rightYDeadband = 0.1;
-        public static final double armManualDeadband = 0.05;
-        public static final double armManualScale = 0.1;
+        public static final double StandardDeadband = .1;
     }
 
     public static class SwerveConstants {
@@ -69,12 +63,14 @@ public final class Constants {
             public static final double turningFF = 0;
             public static final double turningMinOutput = -1;
             public static final double turningMaxOutput = 1;
-            //TODO: Make sure this works, 2024 code on 2025 library
+
             public static final IdleMode drivingMotorIdleMode = IdleMode.kBrake;
             public static final IdleMode turningMotorIdleMode = IdleMode.kBrake;
 
             public static final int drivingMotorCurrentLimit = 40; // a2mps
             public static final int turningMotorCurrentLimit = 20; // amps
+
+            public static final double DrivingRampRate = 0.1;
         }
         public static class PortConstants {
             public static final int frontLeftDriveMotorPort = 9;
@@ -160,10 +156,13 @@ public final class Constants {
         public static final double IntakeStopPositionRotations = -37.356781005859375;
         public static final double Intake15DegreeRotation = -10.714339256286627;
         public static final double IntakeRotateSafeSpeed = .25;
+        public static final boolean IntakeRotationReversed = true;
+        public static final double IntakeChoraleSpeed = 0.3;
     }
     public static class ElevatorConstants {
         public static final int LeftMotorPort = 16;
         public static final int RightMotorPort = 17;
+        public static final boolean ElevatorRotationReversed = true;
 
 
     }

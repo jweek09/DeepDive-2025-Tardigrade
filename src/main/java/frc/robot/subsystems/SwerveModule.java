@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants.ModuleConstants;
 
 import static frc.robot.Constants.SwerveConstants.ModuleConstants.*;
@@ -53,57 +54,16 @@ public class SwerveModule implements Sendable {
         drivingSparkMax.clearFaults();
         turningSparkMax.clearFaults();
 
-        // TODO: Reimplement a factory reset on startup
-
-        //drivingSparkMax.setInverted(driveMotorReversed);
-        //turningSparkMax.setInverted(turningMotorReversed);
-
         drivingEncoder = drivingSparkMax.getEncoder();
         turningEncoder = turningSparkMax.getEncoder();
         drivingPIDController = drivingSparkMax.getClosedLoopController();
         turningPIDController = turningSparkMax.getClosedLoopController();
-        //TODO: Implement feedback device
-
-        //drivingEncoder.setPositionConversionFactor(ModuleConstants.driveEncoderRotToMeter);
-        //drivingEncoder.setVelocityConversionFactor(ModuleConstants.driveEncoderRPMToMeterPerSec);
-        //turningEncoder.setPositionConversionFactor(ModuleConstants.turningEncoderRotToRad);
-        //turningEncoder.setVelocityConversionFactor(ModuleConstants.turningEncoderRPMToRadPerSec);
-
-        // Enable PID wrap around for the turning motor. This will allow the PID
-        // controller to go through 0 to get to the setpoint i.e. going from 350 degrees
-        // to 10 degrees will go through 0 rather than the other direction which is a
-        // longer route.
-        // This is roughly the same as enabling PIDContinuous on a WPI PIDController
-        //turningPIDController.setPositionPIDWrappingEnabled(true);
-        //turningPIDController.setPositionPIDWrappingMinInput(0);
-        //turningPIDController.setPositionPIDWrappingMaxInput(2 * Math.PI);
-
-        // Set the PID gains for the driving motor. Note these are example gains, and you
-        // may need to tune them for your own robot!
-        //drivingPIDController.setP(drivingP);
-        //drivingPIDController.setI(drivingI);
-        //drivingPIDController.setD(drivingD);
-        // TODO: Is this reimplemented on line 109 or doesn't work? drivingPIDController.setFF(ModuleConstants.drivingFF);
-        //drivingPIDController.setOutputRange(ModuleConstants.drivingMinOutput , ModuleConstants.drivingMaxOutput);
-
-        // Set the PID gains for the turning motor. Note these are example gains, and you
-        // may need to tune them for your own robot!
-        //turningPIDController.setP(ModuleConstants.turningP);
-        //turningPIDController.setI(ModuleConstants.turningI);
-        //turningPIDController.setD(ModuleConstants.turningD);
-        //turningPIDController.setFF(ModuleConstants.turningFF);
-        //turningPIDController.setOutputRange(ModuleConstants.turningMinOutput , ModuleConstants.turningMaxOutput);
-
-        //drivingSparkMax.setIdleMode(ModuleConstants.drivingMotorIdleMode);
-        //turningSparkMax.setIdleMode(ModuleConstants.turningMotorIdleMode);
-        //drivingSparkMax.setSmartCurrentLimit(ModuleConstants.drivingMotorCurrentLimit);
-        //turningSparkMax.setSmartCurrentLimit(ModuleConstants.turningMotorCurrentLimit);
-
 
         config //configuring drivingSparkMax
                 .inverted(driveMotorReversed) // Invert motors if driveMotorReversed is true
                 .smartCurrentLimit(ModuleConstants.drivingMotorCurrentLimit)
-                .idleMode(ModuleConstants.drivingMotorIdleMode);
+                .idleMode(ModuleConstants.drivingMotorIdleMode)
+                .closedLoopRampRate(DrivingRampRate);
         config.closedLoop
                 .outputRange(ModuleConstants.drivingMinOutput , ModuleConstants.turningMaxOutput)
                 .pid(drivingP, drivingI, drivingD)
