@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.IntakeChoraleWithSpeed;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ElevatorSubsytem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -66,6 +65,8 @@ public class RobotContainer {
         // Configure the trigger bindings
         configureBindings();
 
+
+
     }
 
     private void registerAutonomousCommands() {
@@ -100,52 +101,28 @@ public class RobotContainer {
     private void configureBindings() {
         driveSubsystem.setDefaultCommand(
                 driveSubsystem.driveRobotRelative(
-                        driverController::getLeftY, 
-                        driverController::getLeftX, 
+                        driverController::getLeftY,
+                        driverController::getLeftX,
                         driverController::getRightX
                 )
         );
-        kIntakeSubsystem.setDefaultCommand(
-                kIntakeSubsystem.stickDriveIntake(
-                        operatorController.getRightY() * Constants.IntakeConstants.IntakeRotateSafeSpeed,
-                        Constants.IntakeConstants.IntakeRotationReversed
-                )
-        );
-
-        operatorController.x().onTrue(
-                kIntakeSubsystem.flipDownIntakeToMax(Constants.IntakeConstants.IntakeRotateSafeSpeed)
-        );
-        operatorController.y().onTrue(
-                kIntakeSubsystem.flipUpIntakeToMax(Constants.IntakeConstants.IntakeRotateSafeSpeed)
-        );
         kElevatorSubsystem.setDefaultCommand(
                 kElevatorSubsystem.MoveElevatorWithStick(
-                        operatorController.getLeftY(), false)
+                        operatorController::getLeftY, false)
         );
-
-        //INTAKE CHORALE
-        operatorController.rightTrigger().whileTrue(
-                new IntakeChoraleWithSpeed(Constants.IntakeConstants.IntakeChoraleSpeed, true,
-                        kIntakeSubsystem.getIntakeSparkMax())
+        kIntakeSubsystem.setDefaultCommand(
+                kIntakeSubsystem.stickDriveIntake(
+                        operatorController::getRightY
+                )
         );
-        operatorController.leftTrigger().whileTrue(
-                new IntakeChoraleWithSpeed(Constants.IntakeConstants.IntakeChoraleSpeed, false,
-                        kIntakeSubsystem.getIntakeSparkMax())
-        );
-        //
-    };
-
-    
-    
-    /**
-     * Use this to pass the autonomous command to the main {@link Robot} class.
-     *
-     * @return the command to run in autonomous
-     */
+        operatorController.leftTrigger().whileTrue(kIntakeSubsystem.runIntake(IntakeSubsystem.IntakeDirection.IN)).onFalse(kIntakeSubsystem.stopIntake());
+        operatorController.rightTrigger().whileTrue(kIntakeSubsystem.runIntake(IntakeSubsystem.IntakeDirection.OUT)).onFalse(kIntakeSubsystem.stopIntake());
+        operatorController.a().onTrue(kIntakeSubsystem.flipDownIntake());
+        operatorController.b().onTrue(kIntakeSubsystem.flipUpIntake());
+    }
     public Command getAutonomousCommand() {
         //return Commands.waitSeconds(MathUtil.clamp(autonomousDelayTime.getDouble(0.0), 0, 15))
-                //.andThen(autonomousCommand.getSelected());
-
+        //.andThen(autonomousCommand.getSelected());
         return new PrintCommand("NOT IMPLEMENTED");
     }
 }

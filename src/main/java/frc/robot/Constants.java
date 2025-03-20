@@ -157,7 +157,7 @@ public final class Constants {
         public static final double Intake15DegreeRotation = -10.714339256286627;
         public static final double IntakeRotateSafeSpeed = .25;
         public static final boolean IntakeRotationReversed = true;
-        public static final double IntakeChoraleSpeed = 0.3;
+        public static final double IntakeChoraleSpeed = 0.1;
     }
     public static class ElevatorConstants {
         public static final int LeftMotorPort = 16;
