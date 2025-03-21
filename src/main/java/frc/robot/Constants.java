@@ -154,7 +154,7 @@ public final class Constants {
         public static final int intakeMotorPort = 14;
         public static final int rotationMotorPort = 15;
         public static final double IntakeStopPositionRotations = -37.356781005859375;
-        public static final double Intake15DegreeRotation = -10.714339256286627;
+        public static final double Intake15DegreeRotation = -7.958;
         public static final double IntakeRotateSafeSpeed = .25;
         public static final boolean IntakeRotationReversed = true;
         public static final double IntakeChoraleSpeed = 0.1;

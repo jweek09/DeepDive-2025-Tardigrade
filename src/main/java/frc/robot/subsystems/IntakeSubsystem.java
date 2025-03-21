@@ -21,7 +21,7 @@ public class IntakeSubsystem extends SubsystemBase {
     final SparkMax kRotateSparkMax = new SparkMax(Constants.IntakeConstants.rotationMotorPort, SparkLowLevel.MotorType.kBrushless);
     final SparkMax kIntakeSparkMax = new SparkMax(Constants.IntakeConstants.intakeMotorPort, SparkLowLevel.MotorType.kBrushless);
     final RelativeEncoder kRotationNEOEncoder = kRotateSparkMax.getEncoder();
-    final PIDController kPIDController = new PIDController(.5, 0, 0);
+    final PIDController kPIDController = new PIDController(.3, 0, 0);
 
     boolean override = false;
     // I'm bad at naming things, so note that this speed is different from stickDriveIntake's speed. That one is local,
@@ -42,13 +42,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic(){
-        if (!override && !kPIDController.atSetpoint()){
+        if (!override){
             kPIDController.setSetpoint(targetPosition);
             speed = kPIDController.calculate(kRotationNEOEncoder.getPosition());
-            kRotateSparkMax.set(speed);
-        } else if (override) {
-            kPIDController.setSetpoint(kRotationNEOEncoder.getPosition());
-        }
+            kRotateSparkMax.set(MathUtil.clamp(speed, -.25, .25));
+        } //else if (override) {
+        //kPIDController.setSetpoint(kRotationNEOEncoder.getPosition());
+        //}
     }
 
     public Command stickDriveIntake(DoubleSupplier speed) {
@@ -94,8 +94,10 @@ public class IntakeSubsystem extends SubsystemBase {
         });
     }
 
-    public void setPointManual(double setpoint) {
-        targetPosition = setpoint;
+    public Command setPointManual(double setpoint) {
+        return run ( () -> {
+            targetPosition = setpoint;
+        });
     }
 
 }

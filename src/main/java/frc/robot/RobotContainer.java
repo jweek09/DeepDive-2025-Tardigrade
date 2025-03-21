@@ -119,6 +119,7 @@ public class RobotContainer {
         operatorController.rightTrigger().whileTrue(kIntakeSubsystem.runIntake(IntakeSubsystem.IntakeDirection.OUT)).onFalse(kIntakeSubsystem.stopIntake());
         operatorController.a().onTrue(kIntakeSubsystem.flipDownIntake());
         operatorController.b().onTrue(kIntakeSubsystem.flipUpIntake());
+        operatorController.y().onTrue(kIntakeSubsystem.setPointManual(Constants.IntakeConstants.Intake15DegreeRotation * 6));
     }
     public Command getAutonomousCommand() {
         //return Commands.waitSeconds(MathUtil.clamp(autonomousDelayTime.getDouble(0.0), 0, 15))
