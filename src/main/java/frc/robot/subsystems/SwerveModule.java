@@ -15,7 +15,6 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants.ModuleConstants;
 
 import static frc.robot.Constants.SwerveConstants.ModuleConstants.*;

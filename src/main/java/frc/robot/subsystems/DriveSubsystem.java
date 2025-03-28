@@ -1,14 +1,12 @@
 package frc.robot.subsystems;
 
-import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.studica.frc.AHRS;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.path.PathPlannerPath;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -21,11 +19,8 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.SwerveConstants;
-import org.json.simple.parser.ParseException;
 
-import java.io.IOException;
 import java.util.function.DoubleSupplier;
 
 
@@ -80,6 +75,8 @@ public class DriveSubsystem extends SubsystemBase {
                     backLeft.getPosition(),
                     backRight.getPosition()
             });
+
+//    private final UsbCamera kIntakeCamera = new UsbCamera("Intake Camera", 0);
 
     // With eager singleton initialization, any static variables/fields used in the 
     // constructor must appear before the "INSTANCE" variable so that they are initialized 
@@ -172,13 +169,15 @@ public class DriveSubsystem extends SubsystemBase {
                 });
 
         field.setRobotPose(poseEstimator.getPoseMeters());
+
+//        CameraServer.startAutomaticCapture(kIntakeCamera);
     }
 
     public void driveRobotRelative(ChassisSpeeds chassisSpeeds) {
         setModuleStates(SwerveConstants.swerveDriveKinematics.toSwerveModuleStates(chassisSpeeds));
     }
 
-    public Command driveRobotRelative(DoubleSupplier xSpeedCommanded, DoubleSupplier ySpeedCommanded, DoubleSupplier zRotCommanded) {
+    public Command driveRobotRelativeCommand(DoubleSupplier xSpeedCommanded, DoubleSupplier ySpeedCommanded, DoubleSupplier zRotCommanded) {
         return run(() -> {
             double xMPS = xSpeedCommanded.getAsDouble() * SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
             double yMPS = ySpeedCommanded.getAsDouble() * SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
@@ -186,6 +185,18 @@ public class DriveSubsystem extends SubsystemBase {
 
             driveRobotRelative(
                 ChassisSpeeds.fromRobotRelativeSpeeds(xMPS, yMPS, zRPS, getGyroRotation2d())
+            );
+        });
+    }
+
+    public Command driveRobotRelativeCommandSlow(DoubleSupplier xSpeedCommanded, DoubleSupplier ySpeedCommanded, DoubleSupplier zRotCommanded) {
+        return run(() -> {
+            double xMPS = (xSpeedCommanded.getAsDouble() *  .1) * SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
+            double yMPS = (ySpeedCommanded.getAsDouble() * .1) * SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
+            double zRPS = (zRotCommanded.getAsDouble() * .1) * SwerveConstants.TeleopConstants.teleDriveMaxAngularSpeedRadiansPerSecond;
+
+            driveRobotRelative(
+                    ChassisSpeeds.fromRobotRelativeSpeeds(xMPS, yMPS, zRPS, getGyroRotation2d())
             );
         });
     }
@@ -236,7 +247,7 @@ public class DriveSubsystem extends SubsystemBase {
         }).start();
 
         RobotConfig config = null;
-        try{
+        try {
             config = RobotConfig.fromGUISettings();
         } catch (Exception e) {
             // Handle exception as needed
@@ -248,12 +259,20 @@ public class DriveSubsystem extends SubsystemBase {
                 this::getPose, // Robot pose supplier
                 this::resetPose, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                (speeds, feedforwards) -> driveRobotRelative(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-                new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-                        new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-                        new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                this::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                new PPHolonomicDriveController( // HolonomicPathFollowerConfig, this should likely live in your Constants class
+                        new PIDConstants(
+                                SwerveConstants.AutoConstants.translationP,
+                                SwerveConstants.AutoConstants.translationI,
+                                SwerveConstants.AutoConstants.translationD
+                        ), // Translation PID constants
+                        new PIDConstants(
+                                SwerveConstants.AutoConstants.rotationP,
+                                SwerveConstants.AutoConstants.rotationI,
+                                SwerveConstants.AutoConstants.rotationD
+                        ) // Rotation PID constants
                 ),
-                config, // The robot configuration
+                        config,
                 () -> {
                     // Boolean supplier that controls when the path will be mirrored for the red alliance
                     // This will flip the path being followed to the red side of the field.
@@ -268,5 +287,6 @@ public class DriveSubsystem extends SubsystemBase {
                 this // Reference to this subsystem to set requirements
         );
     }
+
 }
 

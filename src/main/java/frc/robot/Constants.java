@@ -157,14 +157,20 @@ public final class Constants {
         public static final double Intake15DegreeRotation = -7.958;
         public static final double IntakeRotateSafeSpeed = .25;
         public static final boolean IntakeRotationReversed = true;
-        public static final double IntakeChoraleSpeed = 0.1;
+        public static final double IntakeChoraleSpeed = 0.15;
+
+        public static final double IntakeL1Rotations = Intake15DegreeRotation * 6.333;
+        public static final double IntakeL2L3Rotations = Intake15DegreeRotation * 8.333;
+        public static final double IntakePlayerRotations = Intake15DegreeRotation * 2.466;
     }
     public static class ElevatorConstants {
         public static final int LeftMotorPort = 16;
         public static final int RightMotorPort = 17;
         public static final boolean ElevatorRotationReversed = true;
 
-
+        public static final double ElevatorL1Position = 21.261806;
+        public static final double ElevatorL2Position = 45.856685;
+        public static final double ElevatorL3Position = 69.144676;
     }
     public static final double neoFreeSpeedRPM = 5676;
 }

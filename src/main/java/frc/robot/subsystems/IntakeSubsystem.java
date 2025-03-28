@@ -12,8 +12,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-import java.util.function.DoubleSupplier;
-
 /**
  * @author Jonathan Weeks
  */
@@ -33,7 +31,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public IntakeSubsystem() {
         SparkMaxConfig config = new SparkMaxConfig();
         config
-                .idleMode(SparkBaseConfig.IdleMode.kCoast);
+                .idleMode(SparkBaseConfig.IdleMode.kBrake);
         kRotateSparkMax.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
         kIntakeSparkMax.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
         kRotationNEOEncoder.setPosition(0.0);
@@ -41,34 +39,18 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     @Override
-    public void periodic(){
-        if (!override){
+    public void periodic() {
+        if (!override) {
             kPIDController.setSetpoint(targetPosition);
             speed = kPIDController.calculate(kRotationNEOEncoder.getPosition());
-            kRotateSparkMax.set(MathUtil.clamp(speed, -.25, .25));
-        } //else if (override) {
-        //kPIDController.setSetpoint(kRotationNEOEncoder.getPosition());
-        //}
-    }
-
-    public Command stickDriveIntake(DoubleSupplier speed) {
-        double deadbandSpeed = MathUtil.applyDeadband(speed.getAsDouble(), 0.07);
-        if (deadbandSpeed != 0) {
-            override = true;
-            return run(() -> {
-                double clampedSpeed = MathUtil.clamp(deadbandSpeed, -0.25, 0.25); // Clamped after applying deadband
-                kRotateSparkMax.set(clampedSpeed);
-                kIntakeSparkMax.set(clampedSpeed);
-            });
-        } else {
-            override = false;
-            return run(() -> {}); // Do nothing command
+            kRotateSparkMax.set(MathUtil.clamp(speed, -.3,.3));
         }
     }
 
     public enum IntakeDirection {
         IN, OUT
     }
+
     public Command runIntake(IntakeDirection direction) {
         return run(() -> {
             int sign = (direction == IntakeDirection.IN) ? 1 : -1;
@@ -77,13 +59,13 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command stopIntake() {
-        return run( () -> {
+        return run(() -> {
             kIntakeSparkMax.set(0);
         });
     }
 
     public Command flipDownIntake() {
-        return run( () -> {
+        return run(() -> {
             targetPosition = Constants.IntakeConstants.IntakeStopPositionRotations;
         });
     }
@@ -91,6 +73,24 @@ public class IntakeSubsystem extends SubsystemBase {
     public Command flipUpIntake() {
         return run(() -> {
             targetPosition = 0.03;
+        });
+    }
+
+    public Command intakeToL1() {
+        return run(() -> {
+            targetPosition = Constants.IntakeConstants.IntakeL1Rotations;
+        });
+    }
+
+    public Command intakeToL2L3() {
+        return run(() -> {
+            targetPosition = Constants.IntakeConstants.IntakeL2L3Rotations;
+        });
+    }
+
+    public Command intakeToPlayer() {
+        return run( () -> {
+            targetPosition = Constants.IntakeConstants.IntakePlayerRotations;
         });
     }
 
