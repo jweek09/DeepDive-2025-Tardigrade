@@ -36,12 +36,12 @@ public class SwerveModule implements Sendable {
 
     public SwerveModule(int driveMotorId, int turningMotorId, boolean driveMotorReversed, boolean turningMotorReversed,
                         int absoluteEncoderId, double absoluteEncoderOffset, boolean absoluteEncoderReversed) {
-        // With REVLib 2025, Spark products are now configured via the Spark config objects
+        // With REVLib 2025, Spark products are now configured via the Spark driveConfig objects
         final SparkMax drivingSparkMax;
         final SparkMax turningSparkMax;
 
-        SparkMaxConfig config = new SparkMaxConfig();
-        final SparkMaxConfig configResetifier = new SparkMaxConfig();
+        final SparkMaxConfig driveConfig = new SparkMaxConfig();
+        final SparkMaxConfig turnConfig = new SparkMaxConfig();
 
         this.absoluteEncoderOffsetRad = absoluteEncoderOffset;
         this.absoluteEncoderReversed = absoluteEncoderReversed;
@@ -58,30 +58,29 @@ public class SwerveModule implements Sendable {
         drivingPIDController = drivingSparkMax.getClosedLoopController();
         turningPIDController = turningSparkMax.getClosedLoopController();
 
-        config //configuring drivingSparkMax
+        driveConfig //configuring drivingSparkMax
                 .inverted(driveMotorReversed) // Invert motors if driveMotorReversed is true
                 .smartCurrentLimit(ModuleConstants.drivingMotorCurrentLimit)
                 .idleMode(ModuleConstants.drivingMotorIdleMode)
                 .closedLoopRampRate(DrivingRampRate);
-        config.closedLoop
+        driveConfig.closedLoop
                 .outputRange(ModuleConstants.drivingMinOutput , ModuleConstants.turningMaxOutput)
                 .pid(drivingP, drivingI, drivingD)
                 .velocityFF(drivingFF)
                 .outputRange(ModuleConstants.drivingMinOutput , ModuleConstants.drivingMaxOutput);
-        config.encoder
+        driveConfig.encoder
                 .positionConversionFactor(ModuleConstants.driveEncoderRotToMeter)
                 .velocityConversionFactor(ModuleConstants.driveEncoderRPMToMeterPerSec);
 
         // Save the SPARK MAX configurations after a power cycle by setting PersistMode to kPersistParameters
         // Reset undefined parameters to defaults by setting ResetMode to kResetSafeParameters
-        drivingSparkMax.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
+        drivingSparkMax.configure(driveConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
-        config.apply(configResetifier); // Reset config
-        config
+        turnConfig
                 .inverted(turningMotorReversed)
                 .smartCurrentLimit(ModuleConstants.turningMotorCurrentLimit)
                 .idleMode(ModuleConstants.turningMotorIdleMode);
-        config.closedLoop
+        turnConfig.closedLoop
                 .outputRange(ModuleConstants.turningMinOutput , ModuleConstants.turningMaxOutput)
                 .pid(turningP, turningI, turningD)
                 .velocityFF(turningFF)
@@ -89,23 +88,23 @@ public class SwerveModule implements Sendable {
                 .positionWrappingMinInput(0)
                 .positionWrappingMaxInput(2 * Math.PI);
 
-        config.encoder
+        turnConfig.encoder
                 .positionConversionFactor(ModuleConstants.turningEncoderRotToRad)
                 .velocityConversionFactor(ModuleConstants.turningEncoderRPMToRadPerSec);
-        turningSparkMax.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
-        config.apply(configResetifier);
+        turningSparkMax.configure(turnConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
-        new Thread(() -> { // Don't block anything else while sleeping
-            try {
-                Thread.sleep(500); // Gives the absolute encoders half-a-second to get started
-                                        // TODO: See if this actually solves the problem of wheels being randomly skewed after starting
-                resetEncoders();
-            } catch (Exception e) {
-                System.err.println(
-                        "Failed to calibrate " + turningMotorId + " turning motor from absolute encoder. " +
-                                "Something went wrong while sleeping the thread: \n\t" + e);
-            }
-        }).start();
+
+//TODO: Remove        new Thread(() -> { // Don't block anything else while sleeping
+//            try {
+//                Thread.sleep(500); // Gives the absolute encoders half-a-second to get started
+//                                        // TODO: See if this actually solves the problem of wheels being randomly skewed after starting
+//                resetEncoders();
+//            } catch (Exception e) {
+//                System.err.println(
+//                        "Failed to calibrate " + turningMotorId + " turning motor from absolute encoder. " +
+//                                "Something went wrong while sleeping the thread: \n\t" + e);
+//            }
+//        }).start();
     }
 
     @Override

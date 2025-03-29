@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.1998348193540895,
-        "y": 5.248153244075279
+        "x": 7.281620658108737,
+        "y": 7.089700351417285
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.700447983201327,
-        "y": 5.377340154705144
+        "x": 6.521788474249657,
+        "y": 6.420292190884277
       },
       "isLocked": false,
-      "linkedName": "Back Reef"
+      "linkedName": "temp start"
     },
     {
       "anchor": {
-        "x": 1.7602499128717475,
-        "y": 7.009634932620818
+        "x": 5.260695167824073,
+        "y": 5.2396043113425925
       },
       "prevControl": {
-        "x": 1.777791771827041,
-        "y": 6.711924020996123
+        "x": 6.012897043689062,
+        "y": 5.882729518191511
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Back Reef"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5552158398004434,
+      "rotationDegrees": -121.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -41,14 +46,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 127.85250296450154
+    "velocity": 0.0,
+    "rotation": -121.44392756907142
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -121.44392756907142
+    "rotation": -178.9087104674325
   },
   "useDefaultConstraints": false
 }

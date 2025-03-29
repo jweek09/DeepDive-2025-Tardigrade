@@ -37,7 +37,7 @@ import java.util.function.DoubleSupplier;
 public class RobotContainer {
     // The robot's subsystems and commands are defined here...
     private final DriveSubsystem driveSubsystem = DriveSubsystem.getInstance();
-    
+
     private DoubleSupplier defaultLauncherSpeed;
     private final BooleanSupplier isRedAlliance = () ->
             DriverStation.getAlliance().filter(value -> value == Alliance.Red).isPresent();
@@ -108,9 +108,10 @@ public class RobotContainer {
      * Configures the Shuffleboard
      */
     private void configureDashboard() {
+
     }
-    
-    
+
+
     /**
      * Use this method to define your trigger->command mappings. Triggers can be created via the
      * {@link Trigger#Trigger(BooleanSupplier)} constructor with an arbitrary
@@ -137,14 +138,19 @@ public class RobotContainer {
                 )
         );
 
+        driverController.leftTrigger().whileTrue(kIntakeSubsystem.runIntake(
+                IntakeSubsystem.IntakeDirection.IN)).onFalse(kIntakeSubsystem.stopIntake());
+        driverController.rightTrigger().whileTrue(kIntakeSubsystem.runIntake(
+                IntakeSubsystem.IntakeDirection.OUT)).onFalse(kIntakeSubsystem.stopIntake());
 
-        driverController.leftTrigger().whileTrue(kIntakeSubsystem.runIntake(IntakeSubsystem.IntakeDirection.IN)).onFalse(kIntakeSubsystem.stopIntake());
-        driverController.rightTrigger().whileTrue(kIntakeSubsystem.runIntake(IntakeSubsystem.IntakeDirection.OUT)).onFalse(kIntakeSubsystem.stopIntake());
-
-        operatorController.leftTrigger().whileTrue(kIntakeSubsystem.runIntake(IntakeSubsystem.IntakeDirection.IN)).onFalse(kIntakeSubsystem.stopIntake());
-        operatorController.rightTrigger().whileTrue(kIntakeSubsystem.runIntake(IntakeSubsystem.IntakeDirection.OUT)).onFalse(kIntakeSubsystem.stopIntake());
-        operatorController.rightBumper().onTrue(new ParallelCommandGroup(kElevatorSubsystem.ElevatorToL3(), kIntakeSubsystem.intakeToL2L3()));
-        operatorController.leftBumper().onTrue(new ParallelCommandGroup(kElevatorSubsystem.ElevatorToL2(), kIntakeSubsystem.intakeToL2L3()));
+        operatorController.leftTrigger().whileTrue(kIntakeSubsystem.runIntake(
+                IntakeSubsystem.IntakeDirection.IN)).onFalse(kIntakeSubsystem.stopIntake());
+        operatorController.rightTrigger().whileTrue(kIntakeSubsystem.runIntake(
+                IntakeSubsystem.IntakeDirection.OUT)).onFalse(kIntakeSubsystem.stopIntake());
+        operatorController.rightBumper().onTrue(new ParallelCommandGroup(
+                kElevatorSubsystem.ElevatorToL3(), kIntakeSubsystem.intakeToL2L3()));
+        operatorController.leftBumper().onTrue(new ParallelCommandGroup(
+                kElevatorSubsystem.ElevatorToL2(), kIntakeSubsystem.intakeToL2L3()));
 
         operatorController.y().onTrue(kIntakeSubsystem.flipUpIntake());
         operatorController.x().onTrue(kIntakeSubsystem.intakeToL1());

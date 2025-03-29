@@ -5,6 +5,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -108,20 +109,12 @@ public class DriveSubsystem extends SubsystemBase {
         );
     }
 
-    /*public void zeroHeading() {
-        gyro.reset();
-    }*/
-
     public void zeroHeading() {
         otherGyro.reset();
     }
 
     /** Gets the rotation reported by the heading in degrees
      * @return The reported angle, in degrees */
-    /*private double getHeading() {
-        return -Math.IEEEremainder(gyro.getAngle(), 360);
-    }*/
-
     private double getHeading() {
         return -Math.IEEEremainder(otherGyro.getYaw().getValueAsDouble(), 360);
     }
@@ -169,7 +162,7 @@ public class DriveSubsystem extends SubsystemBase {
                 });
 
         field.setRobotPose(poseEstimator.getPoseMeters());
-
+        SmartDashboard.putData(otherGyro);
 //        CameraServer.startAutomaticCapture(kIntakeCamera);
     }
 
@@ -184,21 +177,17 @@ public class DriveSubsystem extends SubsystemBase {
             double zRPS = zRotCommanded.getAsDouble() * SwerveConstants.TeleopConstants.teleDriveMaxAngularSpeedRadiansPerSecond;
 
             driveRobotRelative(
-                ChassisSpeeds.fromRobotRelativeSpeeds(xMPS, yMPS, zRPS, getGyroRotation2d())
+                ChassisSpeeds.fromRobotRelativeSpeeds(xMPS, yMPS, zRPS, new Rotation2d(0))
             );
         });
     }
 
     public Command driveRobotRelativeCommandSlow(DoubleSupplier xSpeedCommanded, DoubleSupplier ySpeedCommanded, DoubleSupplier zRotCommanded) {
-        return run(() -> {
-            double xMPS = (xSpeedCommanded.getAsDouble() *  .1) * SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
-            double yMPS = (ySpeedCommanded.getAsDouble() * .1) * SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
-            double zRPS = (zRotCommanded.getAsDouble() * .1) * SwerveConstants.TeleopConstants.teleDriveMaxAngularSpeedRadiansPerSecond;
-
-            driveRobotRelative(
-                    ChassisSpeeds.fromRobotRelativeSpeeds(xMPS, yMPS, zRPS, getGyroRotation2d())
-            );
-        });
+        return driveRobotRelativeCommand(
+                ()->xSpeedCommanded.getAsDouble() *  .1,
+                ()-> ySpeedCommanded.getAsDouble() * .1,
+                ()->zRotCommanded.getAsDouble() * .1
+        );
     }
 
     /** Stops all modules, setting their velocity to 0 and instructing them to hold their current rotation */
