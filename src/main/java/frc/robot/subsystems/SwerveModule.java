@@ -94,17 +94,17 @@ public class SwerveModule implements Sendable {
         turningSparkMax.configure(turnConfig, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
 
 
-//TODO: Remove        new Thread(() -> { // Don't block anything else while sleeping
-//            try {
-//                Thread.sleep(500); // Gives the absolute encoders half-a-second to get started
-//                                        // TODO: See if this actually solves the problem of wheels being randomly skewed after starting
-//                resetEncoders();
-//            } catch (Exception e) {
-//                System.err.println(
-//                        "Failed to calibrate " + turningMotorId + " turning motor from absolute encoder. " +
-//                                "Something went wrong while sleeping the thread: \n\t" + e);
-//            }
-//        }).start();
+       new Thread(() -> { // Don't block anything else while sleeping
+            try {
+                Thread.sleep(500); // Gives the absolute encoders half-a-second to get started
+                                        // TODO: See if this actually solves the problem of wheels being randomly skewed after starting
+                resetEncoders();
+            } catch (Exception e) {
+                System.err.println(
+                        "Failed to calibrate " + turningMotorId + " turning motor from absolute encoder. " +
+                                "Something went wrong while sleeping the thread: \n\t" + e);
+            }
+        }).start();
     }
 
     @Override
