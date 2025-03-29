@@ -172,9 +172,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     public Command driveRobotRelativeCommand(DoubleSupplier xSpeedCommanded, DoubleSupplier ySpeedCommanded, DoubleSupplier zRotCommanded) {
         return run(() -> {
-            double xMPS = xSpeedCommanded.getAsDouble() * SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
-            double yMPS = ySpeedCommanded.getAsDouble() * SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
-            double zRPS = zRotCommanded.getAsDouble() * SwerveConstants.TeleopConstants.teleDriveMaxAngularSpeedRadiansPerSecond;
+            double xMPS = -xSpeedCommanded.getAsDouble() * SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
+            double yMPS = -ySpeedCommanded.getAsDouble() * SwerveConstants.TeleopConstants.teleDriveMaxSpeedMetersPerSecond;
+            double zRPS = -zRotCommanded.getAsDouble() * SwerveConstants.TeleopConstants.teleDriveMaxAngularSpeedRadiansPerSecond;
 
             driveRobotRelative(
                 ChassisSpeeds.fromRobotRelativeSpeeds(xMPS, yMPS, zRPS, new Rotation2d(0))
@@ -184,9 +184,9 @@ public class DriveSubsystem extends SubsystemBase {
 
     public Command driveRobotRelativeCommandSlow(DoubleSupplier xSpeedCommanded, DoubleSupplier ySpeedCommanded, DoubleSupplier zRotCommanded) {
         return driveRobotRelativeCommand(
-                ()->xSpeedCommanded.getAsDouble() *  .1,
+                ()-> xSpeedCommanded.getAsDouble() *  .1,
                 ()-> ySpeedCommanded.getAsDouble() * .1,
-                ()->zRotCommanded.getAsDouble() * .1
+                ()-> zRotCommanded.getAsDouble() * .1
         );
     }
 

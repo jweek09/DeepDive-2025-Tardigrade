@@ -73,14 +73,14 @@ public final class Constants {
             public static final double DrivingRampRate = 0.1;
         }
         public static class PortConstants {
-            public static final int frontLeftDriveMotorPort = 9;
-            public static final int backLeftDriveMotorPort = 6;
-            public static final int frontRightDriveMotorPort = 12;
-            public static final int backRightDriveMotorPort = 3;
-            public static final int frontLeftTurningMotorPort = 7;
-            public static final int backLeftTurningMotorPort = 4;
-            public static final int frontRightTurningMotorPort = 10;
-            public static final int backRightTurningMotorPort = 1;
+            public static final int frontLeftDriveMotorPort = 12; //9;
+            public static final int backLeftDriveMotorPort = 3; //6;
+            public static final int frontRightDriveMotorPort = 9; //12;
+            public static final int backRightDriveMotorPort = 6; //3;
+            public static final int frontLeftTurningMotorPort = 10; //7;
+            public static final int backLeftTurningMotorPort = 1; //4;
+            public static final int frontRightTurningMotorPort = 7; //10;
+            public static final int backRightTurningMotorPort = 4; //1;
             public static final int frontLeftDriveAbsoluteEncoderPort = 8;
             public static final int backLeftDriveAbsoluteEncoderPort = 5;
             public static final int frontRightDriveAbsoluteEncoderPort = 11;
@@ -95,22 +95,26 @@ public final class Constants {
 
             public static final double driveBaseRadius = Math.hypot(trackWidth / 2, wheelBase / 2);
 
-            public static final boolean frontLeftTurningEncoderReversed = true;
-            public static final boolean backLeftTurningEncoderReversed = true;
-            public static final boolean frontRightTurningEncoderReversed = true;
-            public static final boolean backRightTurningEncoderReversed = true;
-            public static final boolean frontLeftDriveEncoderReversed = false;
-            public static final boolean backLeftDriveEncoderReversed = true;
-            public static final boolean frontRightDriveEncoderReversed = true;
-            public static final boolean backRightDriveEncoderReversed = false;
+            public static final boolean frontLeftTurningEncoderReversed = false;
+            public static final boolean backLeftTurningEncoderReversed = false;
+            public static final boolean frontRightTurningEncoderReversed = false;
+            public static final boolean backRightTurningEncoderReversed = false;
+            public static final boolean frontLeftDriveEncoderReversed = true;
+            public static final boolean backLeftDriveEncoderReversed = false;
+            public static final boolean frontRightDriveEncoderReversed = false;
+            public static final boolean backRightDriveEncoderReversed = true;
             public static final boolean frontLeftDriveAbsoluteEncoderReversed = false;
             public static final boolean backLeftDriveAbsoluteEncoderReversed = false;
             public static final boolean frontRightDriveAbsoluteEncoderReversed = false;
             public static final boolean backRightDriveAbsoluteEncoderReversed = false;
-            public static final double frontLeftDriveAbsoluteEncoderOffsetRad = Math.PI;//3.901858;//3.45145677;
-            public static final double backLeftDriveAbsoluteEncoderOffsetRad = 0;//1.859822;//2.61543724;
-            public static final double frontRightDriveAbsoluteEncoderOffsetRad = Math.PI;//3.116459 (WAS OK);//5.46250558;
-            public static final double backRightDriveAbsoluteEncoderOffsetRad = 0;//1.036726;//4.71699094;
+//            public static final double frontLeftDriveAbsoluteEncoderOffsetRad = Math.PI;//3.901858;//3.45145677;
+//            public static final double backLeftDriveAbsoluteEncoderOffsetRad = 0;//1.859822;//2.61543724;
+//            public static final double frontRightDriveAbsoluteEncoderOffsetRad = Math.PI;//3.116459 (WAS OK);//5.46250558;
+//            public static final double backRightDriveAbsoluteEncoderOffsetRad = 0;//1.036726;//4.71699094;
+            public static final double frontLeftDriveAbsoluteEncoderOffsetRad = 0;
+            public static final double backLeftDriveAbsoluteEncoderOffsetRad = Math.PI;
+            public static final double frontRightDriveAbsoluteEncoderOffsetRad = 0;
+            public static final double backRightDriveAbsoluteEncoderOffsetRad = Math.PI;
             public static final double physicalMaxSpeedMetersPerSecond = 4.8;
             public static final double physicalMaxAngularSpeedRadiansPerSecond = 2 * 2 * Math.PI;
         }
